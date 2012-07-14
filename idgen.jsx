@@ -63,8 +63,10 @@ while(!txtNameFile.eof){
 	contactRef.contents = txtContact;
 	
 	var txtEmail = txtEmailFile.readln();
-	if (txtContact == "")
+	if (txtContact == "") {
 		contactRef.contents = txtEmail;
+		emailRef.contents = "";
+	}
 	else
 		emailRef.contents = txtEmail;
 	
