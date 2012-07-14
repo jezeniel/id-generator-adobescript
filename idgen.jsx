@@ -1,4 +1,3 @@
-
 var originalUnit = app.preferences.rulerUnits;
 app.preferences.ruleUnits = Units.PIXELS;
 

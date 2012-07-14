@@ -1,0 +1,36 @@
+ID generator AdobeScript v0.1 (JavaScript)
+
+Create a PSD File with layer names like this:
+
+	PhotoFormat -> Art Layer this will be a reference for your ID photo's style and position
+	IDName  -> Text Layer will get content in names.txt
+	IDNum   -> Text Layer will get content in idnums.txt
+	Email   -> Text Layer will get content in emails.txt
+	Contact -> Text Layer will get content in contacts.txt
+
+note: 
+	-the text files will must be named exactly as listed above.
+	 and name your psd file as ID.psd
+	 
+	-your photos must be all resized because the photo auto resize
+	 feature is not yet available
+	
+	-your Photoshop's units must be set to PIXELS
+	
+	-photos must be jpg files
+	
+how to use:
+	1. Put all your photos, textfiles and PSD in the a single folder.
+		ex. 
+				My Folder -
+				          |- pic1.jpg
+						  |- pic2.jpg
+						  |- names.txt
+						  |- contacts.txt
+						  |- emails.txt
+						  |- idnums.txt
+						  |- ID.psd
+						  
+	2. run the script and select the source folder and save location
+
+	
