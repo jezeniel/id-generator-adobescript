@@ -2,6 +2,7 @@
 var originalUnit = app.preferences.rulerUnits;
 app.preferences.ruleUnits = Units.PIXELS;
 
+//open file paths
 var filepath = Folder.selectDialog("Select the folder where ID.psd, pictures and names.txt are:")
 var savepath = Folder.selectDialog("Select the folder where to save images:")
 
@@ -17,12 +18,12 @@ docRef.layers[3].name = "IDNum"
 docRef.layers[4].name = "Contact"
 docRef.layers[4].name = "Email";
 */
+
 //reference the PSD's layers
 var nameRef = docRef.layers.getByName("IDName").textItem;
 var nameWidth = getNameWidth();
 var numRef = docRef.layers.getByName("IDNum").textItem;
 var emailRef = docRef.layers.getByName("Email").textItem;
-alert(emailRef.contents);
 var contactRef = docRef.layers.getByName("Contact").textItem;
 var newPhotoFmt = docRef.layers.getByName("PhotoFormat");
 
@@ -34,7 +35,7 @@ jpgSaveOpt.formatOptions = FormatOptions.STANDARDBASELINE;
 jpgSaveOpt.matte = MatteType.NONE;
 
 
-// opens names.txt - READONLY
+// open text files- READONLY
 var txtNameFile = File(filepath + "/names.txt");
 txtNameFile.open('r');
 
@@ -62,18 +63,16 @@ while(!txtNameFile.eof){
 	contactRef.contents = txtContact;
 	
 	var txtEmail = txtEmailFile.readln();
-	if (txtContact == "")
 	emailRef.contents = txtEmail;
 	
 	var txtIdNum = txtIdNumFile.readln();
 	numRef.contents = txtIdNum;
+	
 	//specify save path
 	jpgFile = new File(savepath + "/" + txtName + ".jpeg");
 	
-	
+	//resize font size if width exceeds - name layer
 	nameWidth = getNameWidth();
-	
-	//resize font if width exceeds
 	while (nameWidth > maxWidth) {
 		horizonScale--;
 		nameRef.horizontalScale = horizonScale;
@@ -81,6 +80,7 @@ while(!txtNameFile.eof){
 	}
 	horizonScale = 100;
 	
+	//resize for email
 	emailWidth = getEmailWidth();
 	while(emailWidth > maxWidth) {
 		horizonScale--;
@@ -90,12 +90,12 @@ while(!txtNameFile.eof){
 
 
 	//try if file exists if not specify image
-	try {
+try {
 		//change txtName spaces to underscore
 		var picName = changeNameToJPEGName(txtName);
 		changePhoto(filepath + "/" +picName +  ".jpg");
 	}
-	catch(e) {
+catch(e) {
 		try {
 			changePhoto(filepath + "/" + txtName + ".jpg");
 		}
@@ -115,6 +115,7 @@ while(!txtNameFile.eof){
 app.preferences.rulerUnits = originalUnit;
 
 alert("FINISHED!!");
+
 
 function changePhoto(photoName) {
 	//opens the new photo
@@ -151,6 +152,7 @@ function changePhoto(photoName) {
 	
 };
 
+//replaces text to underscore
 function changeNameToJPEGName(text) {
 		var jpgName = text.replace(",", "");
 		while(jpgName.indexOf(" ") != -1) {
