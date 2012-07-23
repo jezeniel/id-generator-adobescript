@@ -9,6 +9,15 @@ var IDNUM = "IDNum";
 var EMAIL = "Email";
 var CONTACT = "Contact";
 var PHOTOFORMAT = "PhotoFormat";
+var MEMBERTYPE = "MemberType";
+
+//reference the PSD's layers
+var nameRef = docRef.layers.getByName(NAME).textItem;
+var numRef = docRef.layers.getByName(IDNUM).textItem;
+var emailRef = docRef.layers.getByName(EMAIL).textItem;
+var contactRef = docRef.layers.getByName(CONTACT).textItem;
+var PhotoFmt = docRef.layers.getByName(PHOTOFORMAT);
+var memberType = docRef.layers.getByName(MEMBERTYPE).textItem;
 
 //specify save options
 var jpgSaveOpt = new JPEGSaveOptions();
@@ -56,27 +65,36 @@ function changePhoto(photoName) {
 
 //replaces text to underscore
 function changeNameToJPEGName(text) {
-		var jpgName = text.replace(",", "");
-		while(jpgName.indexOf(" ") != -1) {
-			jpgName = jpgName.replace(" ", "_");
-		}
-		return jpgName;
+	var jpgName = text.replace(",", "");
+	while(jpgName.indexOf(" ") != -1) {
+		jpgName = jpgName.replace(" ", "_");
+	}
+	return jpgName;
 }
 
 function getWidth(layername) {
-		return docRef.layers.getByName(layername).bounds[2];
+	return docRef.layers.getByName(layername).bounds[2];
 }
 
+function adjustWidth(layer, layername,maxWidth) {
+		var horizonPercent = 100;
+		var layer.horizontalScale  = horizonPercent;
+		var layerWidth = getWidth(layername);
+		while(layerWidth > maxWidth) {
+			horizonPercent--;
+			layer.horizontalScale = horizonPercent;
+			layerWidth = getWidth(layername);
+		}
+}
 //copy layer style
 function copyLayerStyle(layer1, layer2) {
 	
-		app.activeDocument.activeLayer = layer1;
-		var id157 = charIDToTypeID("CpFX");
-		executeAction(id157, undefined, DialogModes.ALL);
-		app.activeDocument.activeLayer = layer2;
-		var id158 = charIDToTypeID("PaFX");
-		executeAction(id158, undefined, DialogModes.ALL);
-	
+	app.activeDocument.activeLayer = layer1;
+	var id157 = charIDToTypeID("CpFX");
+	executeAction(id157, undefined, DialogModes.ALL);
+	app.activeDocument.activeLayer = layer2;
+	var id158 = charIDToTypeID("PaFX");
+	executeAction(id158, undefined, DialogModes.ALL);
 	
 }
 
@@ -86,41 +104,50 @@ var filepath = Folder.selectDialog("Select the folder where ID.psd, pictures and
 var savepath = Folder.selectDialog("Select the folder where to save images:");
 
 var maxWidth = 2626; //maxwidth for name text
-var horizonScale = 100; //percentage of horizontal scale
+var horizonPercent = 100; //percentage of horizontal scale
 
 //references the ID format
 var fileRef = File(filepath + "/ID.psd");
 var docRef = app.open(fileRef);
 
-//reference the PSD's layers
-var nameRef = docRef.layers.getByName(NAME).textItem;
-var numRef = docRef.layers.getByName(IDNUM).textItem;
-var emailRef = docRef.layers.getByName(EMAIL).textItem;
-var contactRef = docRef.layers.getByName(CONTACT).textItem;
-var PhotoFmt = docRef.layers.getByName(PHOTOFORMAT);
-
 // open text files- READONLY
-var txtNameFile = File(filepath + "/names.txt");
+var txtNameFile = new File(filepath + "/names.txt");
 txtNameFile.open('r');
 
-var txtContactFile = File(filepath + "/contacts.txt");
+var txtContactFile = new File(filepath + "/contacts.txt");
 txtContactFile.open('r');
 
-var txtEmailFile = File(filepath + "/emails.txt");
+var txtEmailFile = new File(filepath + "/emails.txt");
 txtEmailFile.open('r');
 
-var txtIdNumFile = File(filepath + "/idnums.txt");
+var txtIdNumFile = new File(filepath + "/idnums.txt");
 txtIdNumFile.open('r');
+
+try {
+	var memberFileAvailable = true;
+	var txtMemberFile = new File(filepath + "/membertype.txt");
+	txtMemberFile.open('r');
+}
+catch(e) {
+	memberFileAvailable = false;
+}
 
 //loop for processing image
 while(!txtNameFile.eof){
-	horizonScale = 100;
+	horizonPercent = 100;
 	PhotoFmt.visible = true;
-	nameRef.horizontalScale = horizonScale;
-	emailRef.horizontalScale = horizonScale;
+	nameRef.horizontalScale = horizonPercent;
+	emailRef.horizontalScale = horizonPercent;
 	
 	
-	//reads text files
+	//reads text files and put text in layers content
+	if(memberFileAvailable) {
+		var txtMemberType = txtMemberFile.readln();
+		memberType.contents = txtMemberType == "" || txtMemberType.toLowerCase() == "member" ? "Member" : txtMemberType;
+	}
+	else
+		memberType.contents = "Member";
+	
 	var txtName =  txtNameFile.readln();
 	nameRef.contents = txtName;
 	
@@ -144,21 +171,20 @@ while(!txtNameFile.eof){
 	//resize font size if width exceeds - name layer
 	nameWidth = getWidth(NAME);
 	while (nameWidth > maxWidth) {
-		horizonScale--;
-		nameRef.horizontalScale = horizonScale;
+		horizonPercent--;
+		nameRef.horizontalScale = horizonPercent;
 		nameWidth = getWidth(NAME);
 	}
 
-	horizonScale = 100;
+	horizonPercent = 100;
 	
 	//resize for email
 	emailWidth = getWidth(EMAIL);
 	while(emailWidth > maxWidth) {
-		horizonScale--;
-		emailRef.horizontalScale = horizonScale;
+		horizonPercent--;
+		emailRef.horizontalScale = horizonPercent;
 		emailWidth = getWidth(EMAIL);
 	}
-
 
 	//try if file name with underscore exists if not try normal image name
 	try {
@@ -181,11 +207,8 @@ while(!txtNameFile.eof){
 			catch(e) {
 				docRef.saveAs(jpgFile,jpgSaveOpt,true, Extension.LOWERCASE);
 			}
-		
 		}
-	
 	}
-
 }
 
 app.preferences.rulerUnits = originalUnit;
