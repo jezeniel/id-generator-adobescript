@@ -10,6 +10,18 @@ var EMAIL = "Email";
 var CONTACT = "Contact";
 var PHOTOFORMAT = "PhotoFormat";
 var MEMBERTYPE = "MemberType";
+var TOBERESIZED = new Array(NAME, EMAIL, MEMBERTYPE);
+
+var maxWidth = 2626; //maxwidth for name text
+var horizonPercent = 100; //percentage of horizontal scale
+
+//open file paths
+var filepath = Folder.selectDialog("Select the folder where ID.psd, pictures and names.txt are:");
+var savepath = Folder.selectDialog("Select the folder where to save images:");
+
+//references the PSD File
+var fileRef = File(filepath + "/ID.psd");
+var docRef = app.open(fileRef);
 
 //reference the PSD's layers
 var nameRef = docRef.layers.getByName(NAME).textItem;
@@ -76,9 +88,10 @@ function getWidth(layername) {
 	return docRef.layers.getByName(layername).bounds[2];
 }
 
-function adjustWidth(layer, layername,maxWidth) {
+function adjustWidth(layername,maxWidth) {
 		var horizonPercent = 100;
-		var layer.horizontalScale  = horizonPercent;
+		var layer = docRef.layers.getByName(layername).textItem;
+		layer.horizontalScale = horizonPercent;
 		var layerWidth = getWidth(layername);
 		while(layerWidth > maxWidth) {
 			horizonPercent--;
@@ -97,18 +110,6 @@ function copyLayerStyle(layer1, layer2) {
 	executeAction(id158, undefined, DialogModes.ALL);
 	
 }
-
-
-//open file paths
-var filepath = Folder.selectDialog("Select the folder where ID.psd, pictures and names.txt are:");
-var savepath = Folder.selectDialog("Select the folder where to save images:");
-
-var maxWidth = 2626; //maxwidth for name text
-var horizonPercent = 100; //percentage of horizontal scale
-
-//references the ID format
-var fileRef = File(filepath + "/ID.psd");
-var docRef = app.open(fileRef);
 
 // open text files- READONLY
 var txtNameFile = new File(filepath + "/names.txt");
@@ -134,12 +135,8 @@ catch(e) {
 
 //loop for processing image
 while(!txtNameFile.eof){
-	horizonPercent = 100;
 	PhotoFmt.visible = true;
-	nameRef.horizontalScale = horizonPercent;
-	emailRef.horizontalScale = horizonPercent;
-	
-	
+
 	//reads text files and put text in layers content
 	if(memberFileAvailable) {
 		var txtMemberType = txtMemberFile.readln();
@@ -165,27 +162,14 @@ while(!txtNameFile.eof){
 	var txtIdNum = txtIdNumFile.readln();
 	numRef.contents = txtIdNum;
 	
+	//resizes specified layers in the array TOBERESIZED
+	for(var i = 0; i < TOBERESIZED.length; i ++) {
+		adjustWidth(TOBERESIZED[i], maxWidth);
+	}
+
 	//specify save path
 	var jpgFile = new File(savepath + "/" + txtName + ".jpeg");
 	
-	//resize font size if width exceeds - name layer
-	nameWidth = getWidth(NAME);
-	while (nameWidth > maxWidth) {
-		horizonPercent--;
-		nameRef.horizontalScale = horizonPercent;
-		nameWidth = getWidth(NAME);
-	}
-
-	horizonPercent = 100;
-	
-	//resize for email
-	emailWidth = getWidth(EMAIL);
-	while(emailWidth > maxWidth) {
-		horizonPercent--;
-		emailRef.horizontalScale = horizonPercent;
-		emailWidth = getWidth(EMAIL);
-	}
-
 	//try if file name with underscore exists if not try normal image name
 	try {
 			//change txtName spaces to underscore
