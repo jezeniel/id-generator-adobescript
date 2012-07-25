@@ -84,6 +84,13 @@ function changeNameToJPEGName(text) {
 	return jpgName;
 }
 
+function removeQuote(text) {
+    while(text.indexOf('"') != -1) {
+	    text = text.replace('"', "");	
+	}
+    return text;
+}
+
 function getWidth(layername) {
 	return docRef.layers.getByName(layername).bounds[2];
 }
@@ -112,55 +119,39 @@ function copyLayerStyle(layer1, layer2) {
 }
 
 // open text files- READONLY
-var txtNameFile = new File(filepath + "/names.txt");
-txtNameFile.open('r');
-
-var txtContactFile = new File(filepath + "/contacts.txt");
-txtContactFile.open('r');
-
-var txtEmailFile = new File(filepath + "/emails.txt");
-txtEmailFile.open('r');
-
-var txtIdNumFile = new File(filepath + "/idnums.txt");
-txtIdNumFile.open('r');
-
-try {
-	var memberFileAvailable = true;
-	var txtMemberFile = new File(filepath + "/membertype.txt");
-	txtMemberFile.open('r');
-}
-catch(e) {
-	memberFileAvailable = false;
-}
+var txtMemberList = new File(filepath + "/memberlist.txt");
+txtMemberList.open('r');
 
 //loop for processing image
-while(!txtNameFile.eof){
+var memInfo = new Array();
+while(!txtMemberList.eof){
 	PhotoFmt.visible = true;
 
 	//reads text files and put text in layers content
-	if(memberFileAvailable) {
-		var txtMemberType = txtMemberFile.readln();
-		memberType.contents = txtMemberType == "" || txtMemberType.toLowerCase() == "member" ? "Member" : txtMemberType;
-	}
-	else
-		memberType.contents = "Member";
+	var memberList = txtMemberList.readln().split("\t");
 	
-	var txtName =  txtNameFile.readln();
-	nameRef.contents = txtName;
+	for(var i = 0; i < memberList.length ; i++)
+		memberList[i] = removeQuote(memberList[i]);
 	
-	var txtContact = txtContactFile.readln();
-	contactRef.contents = txtContact;
+	memInfo[NAME] = memberList[0];
+	memInfo[MEMBERTYPE] = memberList[1];
+	memInfo[IDNUM] = memberList[2];
+	memInfo[CONTACT]  = memberList[3];
+	memInfo[EMAIL]  = memberList[4];
 	
-	var txtEmail = txtEmailFile.readln();
-	if (txtContact == "") {
-		contactRef.contents = txtEmail;
+	nameRef.contents = memInfo[NAME];
+
+	memberType.contents = memInfo[MEMBERTYPE] == "" || memInfo[MEMBERTYPE].toLowerCase() == "member" ? "Member" :  memInfo[MEMBERTYPE];
+	
+	numRef.contents = memInfo[IDNUM];
+	contactRef.contents = memInfo[CONTACT];
+	
+	if (memInfo[CONTACT] == "") {
+		contactRef.contents = memInfo[EMAIL];
 		emailRef.contents = "";
 	}
 	else
-		emailRef.contents = txtEmail;
-	
-	var txtIdNum = txtIdNumFile.readln();
-	numRef.contents = txtIdNum;
+		emailRef.contents = memInfo[EMAIL];
 	
 	//resizes specified layers in the array TOBERESIZED
 	for(var i = 0; i < TOBERESIZED.length; i ++) {
@@ -168,24 +159,24 @@ while(!txtNameFile.eof){
 	}
 
 	//specify save path
-	var jpgFile = new File(savepath + "/" + txtName + ".jpeg");
+	var jpgFile = new File(savepath + "/" + memInfo[NAME] + ".jpeg");
 	
 	//try if file name with underscore exists if not try normal image name
 	try {
-			//change txtName spaces to underscore
-			var picName = changeNameToJPEGName(txtName);
+			//change memInfo[NAME] spaces to underscore
+			var picName = changeNameToJPEGName(memInfo[NAME]);
 			changePhoto(filepath + "/" +picName +  ".jpg");
 	}
 	catch(e) {
 	    //if image name not found specify photo
 		try {
-			changePhoto(filepath + "/" + txtName + ".jpg");
+			changePhoto(filepath + "/" + memInfo[NAME] + ".jpg");
 		}
 		catch(e) {
 			
 			try {
-				alert("ERROR " + txtName + "'s PHOTO NOT FOUND! Please specify the location.");
-				picName = File.openDialog(txtName + "'s Photo", "JPEG : *.jpg");
+				alert("ERROR " + memInfo[NAME] + "'s PHOTO NOT FOUND! Please specify the location.");
+				picName = File.openDialog(memInfo[NAME] + "'s Photo", "JPEG : *.jpg");
 				changePhoto(picName);
 				}
 			catch(e) {
