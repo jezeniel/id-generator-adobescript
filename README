@@ -1,36 +1,38 @@
-ID generator AdobeScript v0.1 (JavaScript)
+ID generator AdobeScript v0.3 (JavaScript)
 
-Create a PSD File with layer names like this:
+1. Create a PSD File with layer names like this:
 
-	PhotoFormat -> Art Layer this will be a reference for your ID photo's style and position
-	IDName  -> Text Layer will get content in names.txt
-	IDNum   -> Text Layer will get content in idnums.txt
-	Email   -> Text Layer will get content in emails.txt
-	Contact -> Text Layer will get content in contacts.txt
+	PhotoFormat -> Art Layer this will be a reference 
+		       for your ID photo's style and position
+	IDName  -> Text Layer
+	IDNum   -> Text Layer
+	Email   -> Text Layer
+	Contact -> Text Layer
+	MemberType -> Text Layer 
 
-note: 
-	-the text files will must be named exactly as listed above.
-	 and name your psd file as ID.psd
+    note: 
+	    -Name your psd as ID.psd.
 	 
-	-your photos must be all resized because the photo auto resize
-	 feature is not yet available
+	    -your photos must be all resized because the photo auto resize
+	     feature is not yet available
 	
-	-your Photoshop's units must be set to PIXELS
+	    -your Photoshop's preferences units must be set to PIXELS
 	
-	-photos must be jpg files
+	    -id photos must be jpg files
 	
-how to use:
-	1. Put all your photos, textfiles and PSD in the a single folder.
-		ex. 
-				My Folder -
-				          |- pic1.jpg
-						  |- pic2.jpg
-						  |- names.txt
-						  |- contacts.txt
-						  |- emails.txt
-						  |- idnums.txt
-						  |- ID.psd
+2. Create an excel file and input data in this order.
+   | NAME  | MEMBERTYPE | IDNUM | CONTACT | EMAIL |
+
+3. Save your excel file as *.txt (TAB DELIMITED)
+
+4. Put all your ID photos, textfile and PSD in the a single folder.
+	ex. 
+		My Folder -
+			|- pic1.jpg
+			|- pic2.jpg
+			|- memberlist.txt
+			|- ID.psd
 						  
-	2. run the script and select the source folder and save location
+5. run the script and select the source folder and save location
 
 	
